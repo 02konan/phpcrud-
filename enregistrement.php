@@ -1,46 +1,31 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if (isset($_POST['envoyer'])) {
 
-    $servername= 'localhost';
+    $servername = 'localhost:443';
     $user = 'root';
     $dbname= 'enregistrement';
     $password= '';
+         
+    try{
+        $db = new pdo('mysql:host=$servername;port=3306;dbname=mysql;charset=utf8',$user, $password,
+        array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        
+        )); 
+        die(var_dump($db));
 
-     
-    $connexion = mysqli_connect($servername, $user, $password, $dbname);
+    } catch(PDOException $e){
+        //die(var_dump($e));
+        echo $e->getMessage();
+    }    
 
-     
-    if (!$connexion) {
-        die("La connexion a échoué : " . mysqli_connect_error());
-    }
-
+     die();
     $nom = $_POST["nom"];
     $prenom = $_POST["prenom"];
     $tel = $_POST["tel"];
     $sexe = $_POST["sexe"];
-
-     
-    $nom = mysqli_real_escape_string($connexion, $nom);
-    $prenom = mysqli_real_escape_string($connexion, $prenom);
-    $tel = mysqli_real_escape_string($connexion, $tel);
-    $sexe = mysqli_real_escape_string($connexion, $sexe);
-
-     
-    $requete = "INSERT INTO utilisateur (nom, prenom, tel, sexe) VALUES ('$nom', '$prenom', '$tel', '$sexe')";
-
-     
-    if (mysqli_query($connexion, $requete)) {
-        echo "Enregistrement réussi.";
-    } else {
-        echo "Erreur d'enregistrement : " . mysqli_error($connexion);
-    }
-
-     
-    mysqli_close($connexion);
+    
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <h2>formulair d'enregistrement</h2>
     <div class="formulaire">
-    <form action=" " method="POST">
+    <form action="" method="POST">
         <label for="">Nom:</label><br>
         <input type="text" name="nom"><br>
         <label for="">Prenom:</label><br>
@@ -65,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <option value="masculin">Masculin</option>
             <option value="feminin">Feminin</option>
         </select>
-         <input type="submit" name="envoyer" value="Envoyer"> 
+        <input type="submit" name="envoyer" value="Envoyer"> 
     </form>
 </body>
 </html>
