@@ -1,10 +1,6 @@
 <?php
-try {
-    $db = new PDO('mysql:host=127.0.0.1;port=3306;dbname=crud_samuel;charset=utf8', 'root', '', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-
-} catch (PDOException $e) {
-    echo $e->getMessage();
-}
+require 'db.php';
+ $db = DB_connect();
 
 // ajouter les informations modifiées
 if (isset($_GET['edit']) && !empty($_POST)) {
@@ -147,7 +143,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                 <option value="feminin"<?= "" ?? (($sexe_edit === 'feminin') ? 'selected' : '') ?>>Feminin</option>
             </select>
             <input type="submit" name="envoyer" value="Envoyer">
-            <a href="http://localhost/fichier/index.php">initialiser</a>
+            <a href="/">initialiser</a>
         </form>
         <?php if (isset($data)) : ?>
             <div class="resultat">
@@ -175,8 +171,8 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                                 <td><?= $item['tel'] ?></td>
                                 <td><?= $item['sexe'] ?></td>
                                 <td>
-                                    <a href="http://localhost/fichier/index.php?delete=<?= $item['id']; ?>">Supprimer</a>
-                                    <a href="http://localhost/fichier/index.php?edit=<?= $item['id']; ?>">Modifier</a>
+                                    <a href="/?delete=<?= $item['id']; ?>">Supprimer</a>
+                                    <a href="/?edit=<?= $item['id']; ?>">Modifier</a>
                                 </td>
                             </tr>
                         <?php endforeach ?>
