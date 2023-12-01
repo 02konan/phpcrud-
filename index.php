@@ -7,8 +7,34 @@ try{
     echo $e->getMessage();
 }   
 
+
+// ajouter les informatiion modifier
+if(isset($_GET['edit']) && !empty($_POST) ) { 
+     
+    $id = $_GET["edit"];
+    $nom = $_POST["nom"];
+    $prenom = $_POST["prenom"];
+    $sexe = $_POST["sexe"];
+    $tel = $_POST["tel"];  
+
+    $sql = "UPDATE users SET nom = :nom, prenom = :prenom, tel = :tel, sexe = :sexe WHERE id = :id";
+    $stmt = $db->prepare($sql);
+
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':nom', $nom);
+    $stmt->bindParam(':prenom', $prenom);
+    $stmt->bindParam(':tel', $tel);
+    $stmt->bindParam(':sexe', $sexe);
+      
+    try {
+        $stmt->execute();
+        echo 'Mise à jour réussie';
+    } catch (PDOException $e) {
+        echo 'Erreur de mise à jour : ' . $e->getMessage();
+    }
+ }
 //insertion
-if (isset($_POST['envoyer'])) { 
+elseif (!empty($_POST['envoyer']) ){ 
 
     $nom = $_POST["nom"];
     $prenom = $_POST["prenom"];
@@ -36,6 +62,51 @@ if (isset($_POST['envoyer'])) {
     }
 }
 
+// ajouter
+if(isset($_POST['id']) && is_numeric($_POST['id'])) {
+    $id =$_POST['id'];
+
+    $sql = "UPDATE users SET nom = :nom, prenom = :prenom, tel = :tel, sexe = :sexe WHERE id = :id";
+    $stmt = $db->prepare($sql);
+
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':nom', $nom);
+    $stmt->bindParam(':prenom', $prenom);
+    $stmt->bindParam(':tel', $tel);
+    $stmt->bindParam(':sexe', $sexe);
+
+    try {
+        $stmt->execute();
+        echo 'Mise à jour réussie';
+    } catch (PDOException $e) {
+        echo 'Erreur de mise à jour : ' . $e->getMessage();
+    }
+  }
+//edition
+$id = 0;
+$nom_edit = '';
+$prenom_edit = '';
+$tel_edit = '';
+$sexe_edit = '';
+
+if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
+    $id = $_GET['edit'];
+
+     
+    $stmt = $db->prepare("SELECT * FROM users WHERE id = :id");
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    
+    $nom_edit = $userData['nom'];
+    $prenom_edit = $userData['prenom'];
+    $tel_edit = $userData['tel'];
+    $sexe_edit = $userData['sexe'];
+}
+ 
+
 //selection
 $data = $db->query("SELECT * from users")->FetchAll();
 
@@ -57,21 +128,13 @@ if(isset($_GET['delete'])){
         $statement->bindValue(':id', $id , PDO::PARAM_INT);        
 
         $delete = $statement->execute();
-
-       if($delete){
-        header('Location: /');
-       }
+ 
     }else{
         $resul['delete'] = 'error inconnu';
     }
-}
-
-//edit
-if(isset($_GET['editer'])){
-    $editer['nom'] = "toure";
-    $editer['prenom'] = "simplice";
-    $editer['tel'] = "04555866";
-}
+}  
+ 
+ 
 ?>
 
 <!DOCTYPE html>
@@ -94,15 +157,16 @@ if(isset($_GET['editer'])){
     </div>
 
     <div class="formulaire">
-    <form action="" method="post">
-        <label for="">Nom:</label><br>
-        <input type="text" name="nom" value="<?= isset($editer['nom']) ? $editer['nom'] : '' ?>"  > <br>
-        <label for="">Prenom:</label><br>
-        <input type="text" name="prenom" value="<?= isset($editer['prenom']) ? $editer['prenom'] : '' ?>"><br>
-        <label for="">tel:</label><br>
-        <input type="text"  name="tel" value="<?= isset($editer['tel']) ? $editer['tel'] : '' ?>"><br>
-        <label for="">sexe</label><br>
-        <select name="sexe" name="sexe"><br>
+    <form action=" " method="POST">
+        <input type="hidden" id="id" name="id">
+        <label for="">Nom:</label> 
+        <input type="text"  name="nom" >  
+        <label for="">Prenom:</label> 
+        <input type="text"  name="prenom" > 
+        <label for="">tel:</label> 
+        <input type="text"   name="tel" > 
+        <label for="">sexe</label> 
+        <select name="sexe" name="sexe"> 
             <option value="masculin">Masculin</option>
             <option value="feminin">Feminin</option>
         </select>
@@ -133,14 +197,31 @@ if(isset($_GET['editer'])){
                                 <td><?= $item['tel'] ?></td>
                                 <td><?= $item['sexe'] ?></td>
                                 <td>
-                                    <a href="#">Editer</a>
-                                    <a href="/?delete=<?= $item['id'] ?>">Supprimer</a>
+                                     <a href="/fichier/index.php?editer">Editer</a> 
+                                     <a href="/fichier/index.php?delete=<?= $item['id'] ?>">Supprimer</a> 
                                 </td>
                             </tr>
-                        <?php endforeach ?>
+                        <?php endforeach ?> 
                 </table>
             <?php endif ?>
         </div>
     <?php endif ?>
+  <script>
+
+    function editRow(id) {
+        // Récupère les valeurs des cellules de la ligne
+        var nom = document.getElementById('row_' + id).getElementsByTagName('td')[1].innerText;
+        var prenom = document.getElementById('row_' + id).getElementsByTagName('td')[2].innerText;
+        var tel = document.getElementById('row_' + id).getElementsByTagName('td')[3].innerText;
+        var sexe = document.getElementById('row_' + id).getElementsByTagName('td')[4].innerText;
+
+        // Remplit les champs du formulaire avec ces valeurs
+        document.getElementById('nom').value = nom;
+        document.getElementById('prenom').value = prenom;
+        document.getElementById('tel').value = tel;
+        document.getElementById('sexe').value = sexe;
+    }
+</script>
+
 </body>
 </html>
